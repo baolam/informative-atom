@@ -2,6 +2,7 @@ from torch import nn, randn, matmul
 from .base import SoftUnit
 from .behavior import NonCodingBehavior
 from ..utils.id_management import generate_id
+from ..utils.dict_operator import add_meta, update_meta, pop_meta
 
 
 class DefaultBehavior(NonCodingBehavior):
@@ -59,8 +60,18 @@ class PropertyUnit(SoftUnit):
         """
         return self._behavior.Y
     
-    def add_meta(self, key, value, *args, **kwargs):
-        pass
+    # def add_meta(self, key, value, *args, **kwargs):
+    #     pass
 
+    # def pop_meta(self, key, *args, **kwargs):
+    #     pass
+
+    def add_meta(self, key, value, *args, **kwargs):
+        self._metadata = add_meta(self._metadata, key, value)
+
+    def update_meta(self, key, value, *args, **kwargs):
+        self._metadata = update_meta(self._metadata, key, value)
+    
     def pop_meta(self, key, *args, **kwargs):
-        pass
+        self._metadata, popped_value = pop_meta(self._metadata, key)
+        return popped_value

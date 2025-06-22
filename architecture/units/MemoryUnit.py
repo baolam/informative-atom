@@ -2,6 +2,7 @@ from torch import nn, randn, max
 from .base import SoftUnit
 from .behavior import NonCodingBehavior
 from ..utils.id_management import generate_id
+from ..utils.dict_operator import add_meta, update_meta, pop_meta
 
 
 class DefaultBehavior(NonCodingBehavior):
@@ -48,18 +49,13 @@ class MemoryUnit(SoftUnit):
         Xem như biểu diễn, bản chất của đơn vị ghi nhớ phụ trách
         """
         return self._behavior.recognize().values
-    
+
     def add_meta(self, key, value, *args, **kwargs):
-        if key in self.metadata:
-            raise TypeError(f"{key} existed!")
-        self.metadata[key] = value
+        self._metadata = add_meta(self._metadata, key, value)
+
+    def update_meta(self, key, value, *args, **kwargs):
+        self._metadata = update_meta(self._metadata, key, value)
     
     def pop_meta(self, key, *args, **kwargs):
-        if key not in self.metadata:
-            raise TypeError(f"{key} does not exist!")
-        return self.metadata.pop(key)
-    
-    def update_meta(self, key, value, *args, **kwargs):
-        if key not in self.metadata:
-            raise TypeError(f"{key} does not exist!")
-        self._metadata.update({ key : value })
+        self._metadata, popped_value = pop_meta(self._metadata, key)
+        return popped_value

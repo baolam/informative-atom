@@ -3,6 +3,7 @@ from .base import SoftUnit
 from .MemoryUnit import MemoryUnit
 from .behavior import NonCodingBehavior
 from ..utils.id_management import generate_id
+from ..utils.dict_operator import add_meta, update_meta, pop_meta
 
 
 class DefaultCombine(NonCodingBehavior):
@@ -21,6 +22,8 @@ class DefaultCombine(NonCodingBehavior):
             raise TypeError("phi_dim must be int!")
         if not isinstance(m_dim, int):
             raise TypeError("m_dim must be int!")
+        if not isinstance(mem_unit, MemoryUnit):
+            raise TypeError("mem_unit must be inheriented from MemoryUnit!")
         
         # Thành phần tham gia của đơn vị vấn đề
         self._mem = mem_unit
@@ -52,12 +55,17 @@ class DefaultCombine(NonCodingBehavior):
 
         # Kích thước của x và y là như nhau
         # Có thể tiến hành kết hợp để cho ra kết quả
-        # Ở đây dùng tính Hadamard
         fusion = cat((x, y), dim=1)
         fusion = self.lin2(fusion)
         fusion = self.act2(fusion)
 
         return self.layer_norm(x + fusion)
+    
+    def recognize(self, *args, **kwargs):
+        return super().recognize(*args, **kwargs)
+    
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
 
 
 class CombineRepresent(SoftUnit):
@@ -65,3 +73,13 @@ class CombineRepresent(SoftUnit):
         _id = generate_id()
         behavior = DefaultCombine(_id, *args, **kwargs)
         super().__init__(_id, behavior, metadata, *args, **kwargs)
+    
+    def add_meta(self, key, value, *args, **kwargs):
+        self._metadata = add_meta(self._metadata, key, value)
+
+    def update_meta(self, key, value, *args, **kwargs):
+        self._metadata = update_meta(self._metadata, key, value)
+    
+    def pop_meta(self, key, *args, **kwargs):
+        self._metadata, popped_value = pop_meta(self._metadata, key)
+        return popped_value
