@@ -1,0 +1,28 @@
+from typing import Dict, Any
+from .ForwardLayer import ForwardLayer
+from ..units.CombineProperty import CombineProperty
+from ..units.manage import ReadOnlyUnit
+
+def check_sat_unit(units : ReadOnlyUnit):
+    assert all(isinstance(unit, CombineProperty) for unit in units), "Unit must be inheriented from CombineProperty class!"
+
+
+class IntepretationLayer(ForwardLayer):
+    """
+    Lớp diễn giải ý nghĩa, kết quả lan truyền của các đơn vị
+    """
+    def __init__(self, units, *args, **kwargs):
+        check_sat_unit(units)
+        super().__init__(units, *args, **kwargs)
+
+    def intepret(self, x, *args, **kwargs) -> Dict[str, Any]:
+        """
+        Đây là gom nhóm và diễn dịch kết quả cho mục đích khai thác phía sau
+        """
+        collector = {}
+
+        for unit in self._units:
+            result = unit.intepret(x, *args, **kwargs)   
+            collector.update(**result)         
+
+        return collector
