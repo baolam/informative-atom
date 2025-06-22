@@ -3,8 +3,7 @@ from collections.abc import Sequence
 
 def find_index(key : Any, keys : List[Any], access_key : Callable = None):
     for i, _key in enumerate(keys):
-        if access_key:
-            _key = access_key(_key)
+        if access_key: _key = access_key(_key)
         if key == _key:
             return i
     return -1

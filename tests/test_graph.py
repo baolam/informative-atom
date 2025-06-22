@@ -12,14 +12,16 @@ from . import *
 def build_unit(_id : str, metadata = {}):
     return FakeHard(_id, FakeBehavior(_id), metadata=metadata)
 
+def build_relation(_from, _to, metadata={}):
+    return FakeRelation(_from, _to, generate_id(), metadata=metadata)
+
+graph = DynamicGraph()
+
 u1 = build_unit("1")
 u2 = build_unit("2")
 u3 = build_unit("3")
 u4 = build_unit("4")
 u5 = build_unit("5")
-
-def build_relation(_from, _to, metadata={}):
-    return FakeRelation(_from, _to, generate_id(), metadata=metadata)
 
 r1 = build_relation("1", "2")
 r2 = build_relation("1", "3")
@@ -27,41 +29,51 @@ r3 = build_relation("3", "4")
 r4 = build_relation("3", "5")
 r5 = build_relation("1", "5")
 
-graph = DynamicGraph()
+def test_dynamic_graph_v1():
+    global graph
 
-def test_dynamic_graph():
-    graph.add_unit(u1)
+    # graph.add_unit(u1)
+    graph + ("unit", [u1])
     assert isinstance(graph.units, MutableUnit)
     assert len(graph.units) == 1
 
-    graph.add_unit(u2)
+    # graph.add_unit(u2)
+    graph + ("unit", [u2])
     assert len(graph.units) == 2
 
     with pytest.raises(ValueError):
         graph.add_relation(r4)
     with pytest.raises(AttributeError):
         graph.add_unit(r1)
+    with pytest.raises(TypeError):
+        graph + ("edge", [r3])
 
-    graph.add_unit(u3)
-    graph.add_unit(u4)
-    graph.add_unit(u5)
+    # graph.add_unit(u3)
+    # graph.add_unit(u4)
+    # graph.add_unit(u5)
+    graph + ("unit", [u3, u4, u5])
 
     assert len(graph.units) == 5
 
-    graph.add_relation(r1)
-    graph.add_relation(r2)
-    graph.add_relation(r3)
-    graph.add_relation(r4)
-    graph.add_relation(r5)
+    # graph.add_relation(r1)
+    # graph.add_relation(r2)
+    # graph.add_relation(r3)
+    # graph.add_relation(r4)
+    # graph.add_relation(r5)
+    graph + ("relation", [r1, r2, r3, r4, r5])
 
     assert len(graph.relations) == 5
 
 def test_special_case_dp():
+    global graph
+
     r6 = build_relation("5", "6")
     with pytest.raises(ValueError):
         graph.add_relation(r6)
 
 def test_static_graph():
+    global graph
+
     static = graph.as_static_graph()
     assert isinstance(static, StaticGraph)
     assert isinstance(static.adjacency_list(), AdjacencyList)
@@ -74,6 +86,13 @@ def test_static_graph():
     assert static.in_relations("2")[0].id == r1.id
     assert len(static.out_relations("1")) == 3
     assert static.out_relations("1")[0].id == r1.id
+    assert static.add_unit() == None
+    assert static.del_relation() == None
+    assert static.del_unit() == None
+    assert static.add_relation() == None
+    assert r1 in static.adjacency_list()
+    assert build_relation("trash", "bin") not in static.adjacency_list()
+    assert len(static.adjacency_list().out_nodes("6")) == 0
 
 def test_forward_graph():
     forward = ForwardGraph(graph.units, graph.relations)

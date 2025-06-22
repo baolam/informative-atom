@@ -65,13 +65,31 @@ class MutableUnit(MutableSequence):
         return iter(self._units)
     
     def __delitem__(self, index):
-        pass
+        if index >= len(self._units):
+            raise TypeError("Index out of range!")
+        
+        old_unit = self._units[index]
+        self.__ids.remove(old_unit.id)
+        self._units.pop(index)
 
-    def __setitem__(self, index, value):
-        pass
+    def __setitem__(self, index, value : BaseUnit):
+        if index >= len(self._units):
+            raise TypeError("Index out of range!")
+        
+        if value.id in self.__ids:
+            raise TypeError("{value.id} existed!, please set new one!")
+        
+        old_unit = self._units[index]
+        self.__ids.remove(old_unit.id)
+        self.__ids.add(value.id)
+        self._units[index] = value
 
-    def insert(self, index, value):
-        pass
+    def insert(self, index, value : BaseUnit):
+        if value.id in self.__ids:
+            raise TypeError(f"{value.id} existed, please insert new one!")
+        
+        self.__ids.add(value.id)
+        self._units.insert(index, value)
 
     def append(self, unit : BaseUnit):
         if not isinstance(unit, BaseUnit):

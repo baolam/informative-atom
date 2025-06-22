@@ -54,13 +54,33 @@ class MutableRelation(MutableSequence):
         return check_contain(relation, self.__ids)
     
     def __delitem__(self, index):
-        pass
+        if index >= len(self._relations):
+            raise TypeError("Index out of range!")
+        
+        base = self._relations[index]
+        self.__ids.remove(base.id)
+        
+        self._relations.pop(index)
+        
+    def __setitem__(self, index, value : BaseRelation):
+        if index >= len(self._relations):
+            raise TypeError("Index out of range!")
+        
+        _id = value.id
+        if _id in self.__ids:
+            raise TypeError(f"{_id} existed!, update new relation instead")
+        
+        old_relation = self._relations[index]
+        
+        self.__ids.remove(old_relation.id)
+        self._relations[index] = value
+        self.__ids.add(_id)
 
-    def __setitem__(self, index, value):
-        pass
-
-    def insert(self, index, value):
-        pass
+    def insert(self, index, value : BaseRelation):
+        if value.id in self.__ids:
+            raise TypeError(f"{value.id} existed, please insert new Relation")
+        self.__ids.add(value.id)
+        self._relations.insert(index, value)
 
     def append(self, relation : BaseRelation):
         if not isinstance(relation, BaseRelation):

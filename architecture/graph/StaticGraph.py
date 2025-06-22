@@ -23,16 +23,16 @@ class StaticGraph(BaseGraph):
         self._relations : ReadOnlyRelation = convert_mutable_readonly(relations)
         self._adjacency_list = self.adjacency_list()
 
-    def add_unit(self, unit):
+    def add_unit(self, *args, **kwargs):
         pass
 
-    def del_unit(self, unit):
+    def del_unit(self, *args, **kwargs):
         pass
 
-    def add_relation(self, relation):
+    def add_relation(self, *args, **kwargs):
         pass
 
-    def del_relation(self, relation):
+    def del_relation(self, *args, **kwargs):
         pass
 
     def in_unit(self, unit_id : str) -> ReadOnlyUnit:
