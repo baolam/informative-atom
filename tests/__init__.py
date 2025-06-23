@@ -5,7 +5,7 @@ from architecture.relations.base import BaseRelation
 class FakeBehavior(CodingBehavior):
     def __init__(self, _id=None, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
-    
+
     def forward(self, x, *args, **kwargs):
         return x
     

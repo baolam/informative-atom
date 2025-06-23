@@ -6,7 +6,7 @@ from ..units.manage import MutableUnit
 class Layer(ABC):
     def __init__(self, *args, **kwargs):
         super().__init__()
-        self._units = MutableUnit()
+        self._units = MutableUnit([])
     
     @property
     def units(self):

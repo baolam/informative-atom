@@ -11,8 +11,8 @@ class BaseGraph(ABC):
     def __init__(self, _id : str = None ,*args, **kwargs):
         super().__init__()
         self.__id = _id
-        self._units = MutableUnit()
-        self._relations = MutableRelation()
+        self._units = MutableUnit([])
+        self._relations = MutableRelation([])
 
     @property
     def id(self):

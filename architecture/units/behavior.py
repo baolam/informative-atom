@@ -39,13 +39,11 @@ class Behavior(ABC):
         Nhận đầu vào, quyết định xem đầu vào đó có phù hợp với hành động đang phụ
         trách hay không?
         """
-        # raise NotImplementedError("recognize method must be implemented!")
-        pass
+        raise NotImplementedError("recognize method must be implemented!")
 
     @staticmethod
     def load(*args, **kwargs):
-        # raise NotImplementedError("load method must be implemented!")
-        pass
+        raise NotImplementedError("load method must be implemented!")
 
     def __call__(self, *args, **kwds):
         return self.forward(*args, **kwds)

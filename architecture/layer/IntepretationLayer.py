@@ -1,3 +1,4 @@
+from torch import Tensor
 from typing import Dict, Any
 from .ForwardLayer import ForwardLayer
 from ..units.CombineProperty import CombineProperty
@@ -26,3 +27,11 @@ class IntepretationLayer(ForwardLayer):
             collector.update(**result)         
 
         return collector
+    
+    def forward(self, x, *args, **kwargs) -> Dict[str, Tensor]:
+        output = {}
+
+        for unit in self._units:
+            output[unit.metadata["as_name"]] = unit(x)
+
+        return output

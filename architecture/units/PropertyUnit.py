@@ -1,4 +1,4 @@
-from torch import nn, randn, matmul
+from torch import nn, randn, matmul, max, tensor
 from .base import SoftUnit
 from .behavior import NonCodingBehavior
 from ..utils.id_management import generate_id
@@ -36,7 +36,7 @@ class DefaultBehavior(NonCodingBehavior):
         p = self.exist(q)
         p = self.act_exist(p)
 
-        attn_weights = matmul(q, self.Y) * self.beta / (self.d ** 0.5)
+        attn_weights = matmul(q, self.Y.T) * self.beta / (self.d ** 0.5)
         attn = self.act_attn(attn_weights)
 
         z = matmul(attn, self.Y)
@@ -46,6 +46,11 @@ class DefaultBehavior(NonCodingBehavior):
 
         return p * fusion
     
+    def recognize(self, *args, **kwargs):
+        return max(self.Y, dim=0)
+    
+    def save(self, *args, **kwargs):
+        pass
 
 class PropertyUnit(SoftUnit):
     def __init__(self, metadata=..., *args, **kwargs):
@@ -58,14 +63,8 @@ class PropertyUnit(SoftUnit):
         """
         Truy cập bộ nhớ riêng được lưu giúp cho biệt hoá tính chất
         """
-        return self._behavior.Y
+        return self._behavior.Y.detach().clone()
     
-    # def add_meta(self, key, value, *args, **kwargs):
-    #     pass
-
-    # def pop_meta(self, key, *args, **kwargs):
-    #     pass
-
     def add_meta(self, key, value, *args, **kwargs):
         self._metadata = add_meta(self._metadata, key, value)
 
