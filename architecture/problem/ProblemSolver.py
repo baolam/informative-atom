@@ -2,13 +2,15 @@ from abc import ABC, abstractmethod
 from dataclasses import _DataclassT
 from typing import Dict, Any
 from ..utils.id_management import generate_id
+from ..utils.list_operator import ReadOnlyList
 from ..units.base import HybridUnit
+from ..units.manage import ReadOnlyUnit
 from ..units.behavior import NonCodingBehavior, CodingBehavior
 from ..layer.IntepretationLayer import IntepretationLayer
 from ..layer.RepresentationLayer import RepresentationLayer
 
 
-class ProblemBehavior(ABC, NonCodingBehavior):
+class ProblemBehavior(NonCodingBehavior, ABC):
     """
     Đây là cài đặt mô hình AI cho vấn đề.
     Bản chất là định hướng cách lan truyền qua các lớp.
@@ -37,6 +39,13 @@ class ProblemBehavior(ABC, NonCodingBehavior):
         """
         pass
 
+    @abstractmethod
+    def units(self) -> ReadOnlyUnit:
+        """
+        Trả về tập các unit
+        """
+        pass
+
 
 class ProbelmCoding(ABC, CodingBehavior):
     """
@@ -48,7 +57,7 @@ class ProbelmCoding(ABC, CodingBehavior):
         super().__init__(_id, *args, **kwargs)
 
 
-class ProblemSolver(ABC, HybridUnit):
+class ProblemSolver(HybridUnit, ABC):
     """
     Đây là lớp dựng chính cho áp dụng cho giải quyết vấn đề
     """
@@ -83,3 +92,14 @@ class ProblemSolver(ABC, HybridUnit):
         Triển khai đặc điểm nhận dạng cho vấn đề (dùng cho AI)
         """
         pass
+
+    @property
+    def units(self):
+        return self._non_code.units()
+    
+    @property
+    def raw_properties(self) -> ReadOnlyList:
+        """
+        Tập tên gọi các tính chất thô
+        """
+        return self._non_code.interpretation_layer.properties()

@@ -58,3 +58,7 @@ def test_intepretation_layer():
     assert isinstance(raws["age"], float)
     assert isinstance(raws["sex"], bool)
     assert isinstance(raws["happy"], bool)
+
+def test_representation_layer():
+    with pytest.raises(TypeError):
+        layer = RepresentationLayer([])

@@ -56,6 +56,14 @@ class BaseUnit(ABC):
     
     def __call__(self, *args, **kwds):
         return self.forward(*args, **kwds)
+    
+    @abstractmethod
+    def parameters(self):
+        """
+        Phương thức lấy tham số tối ưu của đơn vị (đơn vị AI)
+        """
+        pass
+
 
 class HardUnit(BaseUnit, ABC):
     def __init__(self, _id = None, behavior : CodingBehavior = None, metadata = {}, *args, **kwargs):
@@ -72,6 +80,9 @@ class HardUnit(BaseUnit, ABC):
     
     def as_model_view(self, *args, **kwargs):
         return None
+    
+    def parameters(self):
+        pass
     
 
 class SoftUnit(BaseUnit, ABC):
@@ -90,6 +101,9 @@ class SoftUnit(BaseUnit, ABC):
     def as_model_view(self, *args, **kwargs):
         return self._behavior
     
+    def parameters(self):
+        return self._behavior.parameters()
+
 
 class HybridUnit(BaseUnit, ABC):
     """
@@ -129,3 +143,6 @@ class HybridUnit(BaseUnit, ABC):
 
     def _assign_noncode_behavior(self, noncode : NonCodingBehavior):
         self._non_code = noncode
+
+    def parameters(self):
+        return self._non_code.parameters()

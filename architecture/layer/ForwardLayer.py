@@ -1,8 +1,11 @@
 from .StaticLayer import StaticLayer
-from torch import stack
+from torch import stack, nn
 
 
-class ForwardLayer(StaticLayer):
+class ForwardLayer(StaticLayer, nn.Module):
+    """
+    Lớp lan truyền, bản chất cũng là Module (kế thừa hành vi trong thư viện torch)
+    """
     def __init__(self, units, *args, **kwargs):
         super().__init__(units, *args, **kwargs)
 
@@ -14,3 +17,10 @@ class ForwardLayer(StaticLayer):
     
     def __call__(self, *args, **kwds):
         return self.forward(*args, **kwds)
+    
+    def as_cluster(self):
+        """
+        Đây là phương thức trả về một Kn graph (đồ thị đầy đủ) của các
+        unit tham gia
+        """
+        pass
