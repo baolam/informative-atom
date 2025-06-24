@@ -102,4 +102,8 @@ class ProblemSolver(HybridUnit, ABC):
         """
         Tập tên gọi các tính chất thô
         """
-        return self._non_code.interpretation_layer.properties()
+        return self.intepretation_layer.properties()
+    
+    @property
+    def intepretation_layer(self):
+        return self._non_code.intepretation_layer

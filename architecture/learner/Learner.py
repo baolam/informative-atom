@@ -1,11 +1,13 @@
+from abc import ABC, abstractmethod
 from torch import Tensor, optim
 from torch.utils.data import DataLoader
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Callable, List
 from ..units.base import BaseUnit, HardUnit
 from ..problem.ProblemSolver import ProblemSolver
+from .utils import assign_loss
 
 
-class Learner:
+class Learner(ABC):
     """
     Lớp dựng hình thức học cho đơn vị, chỉ dành cho nhóm đơn vị kế thừa từ SoftUnit và HybridUnit
     """
@@ -46,21 +48,34 @@ class Learner:
 
         return params
     
+    @abstractmethod
     def forward(self, *args, **kwargs):
         pass
 
-    def train(self, epochs : int, loader : DataLoader, optimizer : optim.Optimizer, *args, **kwargs):
+    @abstractmethod
+    def train(self, epochs : int, loader : DataLoader, optimizer : optim.Optimizer, *args, **kwargs) -> Dict[str, List[float]]:
         pass
+    
+    @abstractmethod
+    @property
+    def loss(self):
+        return self._loss_component
 
-    def assign_loss(self, property_name, loss_fn):
-        if property_name not in self._loss_component:
-            raise ValueError(f"{property_name} does not exist!")
-        
-        self._loss_component[property_name] = loss_fn
+    @abstractmethod
+    @loss.setter
+    def loss(self, infor : Tuple[str, Callable]):
+        self._loss_component = assign_loss(self._loss_component, infor)
 
+    @abstractmethod
     def combine_loss(self, *args, **kwargs) -> Tensor:
         """
         Đây là hàm cài đặt tính tổng các lỗi thành phần,
         mục tiêu là hỗ trợ lan truyền tính toán của backward
         """
         pass
+
+    @abstractmethod
+    def compile(self, *args, **kwargs):
+        """
+        Tiến hành một số compile, cài đặt phục vụ cho quá trình huấn luyện
+        """

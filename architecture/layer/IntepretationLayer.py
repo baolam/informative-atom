@@ -3,7 +3,6 @@ from typing import Dict, Any
 from .ForwardLayer import ForwardLayer
 from ..units.CombineProperty import CombineProperty
 from ..units.manage import ReadOnlyUnit
-from ..utils.list_operator import ReadOnlyList
 
 def check_sat_unit(units : ReadOnlyUnit):
     assert all(isinstance(unit, CombineProperty) for unit in units), "Unit must be inheriented from CombineProperty class!"

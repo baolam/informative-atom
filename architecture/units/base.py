@@ -137,12 +137,23 @@ class HybridUnit(BaseUnit, ABC):
         """
         # raise NotImplementedError("intepret method must be implemented!")
         pass
-    
-    def _assign_coding_behavior(self, coding : CodingBehavior):
-        self._code = coding
 
-    def _assign_noncode_behavior(self, noncode : NonCodingBehavior):
+    @property
+    def code(self):
+        return self._code
+    
+    @code.setter
+    def code(self, coding : CodingBehavior):
+        self._code = coding
+    
+    @property
+    def noncode(self):
+        return self._non_code
+    
+    @noncode.setter
+    def noncode(self, noncode : NonCodingBehavior):
         self._non_code = noncode
 
     def parameters(self):
         return self._non_code.parameters()
+    
