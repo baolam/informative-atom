@@ -68,7 +68,7 @@ class BaseUnit(ABC):
 class HardUnit(BaseUnit, ABC):
     def __init__(self, _id = None, behavior : CodingBehavior = None, metadata = {}, *args, **kwargs):
         super().__init__(_id, metadata, *args, **kwargs)
-        if not isinstance(behavior, CodingBehavior):
+        if not issubclass(type(behavior), CodingBehavior):
             raise TypeError("behavior must be inheriented from CodingBehavior!")
         self._behavior = behavior
     
@@ -88,7 +88,7 @@ class HardUnit(BaseUnit, ABC):
 class SoftUnit(BaseUnit, ABC):
     def __init__(self, _id = None, behavior : NonCodingBehavior = None, metadata = {}, *args, **kwargs):
         super().__init__(_id, metadata, *args, **kwargs)
-        if not isinstance(behavior, NonCodingBehavior):
+        if not issubclass(type(behavior), NonCodingBehavior):
             raise TypeError("behavior must be inheriented from NonCodingBehavior!")
         self._behavior = behavior
     
@@ -112,10 +112,14 @@ class HybridUnit(BaseUnit, ABC):
     """
     def __init__(self, _id = None, coding_behavior : CodingBehavior = None, non_coding_behavior : NonCodingBehavior = None, metadata = {}, *args, **kwargs):
         super().__init__(_id, metadata, *args, **kwargs)
-        if not isinstance(coding_behavior, CodingBehavior):
-            raise TypeError("coding_behavior must be inheriented from CodingBehavior!")
-        if not isinstance(non_coding_behavior, NonCodingBehavior):
-            raise TypeError("non_coding_behavior must be inheriented from NonCodingBehavior!")
+        if coding_behavior != None:
+            if not issubclass(type(coding_behavior), CodingBehavior):
+                raise TypeError(f"coding_behavior must be inheriented from CodingBehavior!")
+    
+        if non_coding_behavior != None:
+            if not issubclass(type(non_coding_behavior), NonCodingBehavior):
+                raise TypeError("non_coding_behavior must be inheriented from NonCodingBehavior!")
+            
         self._code = coding_behavior
         self._non_code = non_coding_behavior
     

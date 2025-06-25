@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from dataclasses import _DataclassT
 from typing import Dict, Any
 from ..utils.id_management import generate_id
 from ..utils.list_operator import ReadOnlyList
+from ..utils.dict_operator import add_meta, update_meta, pop_meta
 from ..units.base import HybridUnit
 from ..units.manage import ReadOnlyUnit
 from ..units.behavior import NonCodingBehavior, CodingBehavior
@@ -47,7 +47,7 @@ class ProblemBehavior(NonCodingBehavior, ABC):
         pass
 
 
-class ProbelmCoding(ABC, CodingBehavior):
+class ProblemCoding(CodingBehavior, ABC):
     """
     Đây là cài đặt thuật toán thông thường cho vấn đề.
 
@@ -61,12 +61,12 @@ class ProblemSolver(HybridUnit, ABC):
     """
     Đây là lớp dựng chính cho áp dụng cho giải quyết vấn đề
     """
-    def __init__(self, coding_behavior : ProbelmCoding = None, non_coding_behavior : ProblemBehavior = None, metadata=..., *args, **kwargs):
+    def __init__(self, coding_behavior : ProblemCoding = None, non_coding_behavior : ProblemBehavior = None, metadata=..., *args, **kwargs):
         _id = generate_id()
         super().__init__(_id, coding_behavior, non_coding_behavior, metadata, *args, **kwargs)
 
     @abstractmethod
-    def as_entity(self, *args, **kwargs) -> _DataclassT:
+    def as_entity(self, *args, **kwargs):
         """
         Trả về một thực thể của một lớp. Dùng cho tổ chức và gọi hành vi tương
         tác.
@@ -107,3 +107,13 @@ class ProblemSolver(HybridUnit, ABC):
     @property
     def intepretation_layer(self):
         return self._non_code.intepretation_layer
+    
+    def add_meta(self, key, value, *args, **kwargs):
+        self._metadata = add_meta(self._metadata, key, value)
+
+    def update_meta(self, key, value, *args, **kwargs):
+        self._metadata = update_meta(key, value)
+
+    def pop_meta(self, key, *args, **kwargs):
+        self._metadata, popped_value = pop_meta(self._metadata, key)
+        return popped_value

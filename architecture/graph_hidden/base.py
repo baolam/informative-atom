@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from ..units.base import BaseUnit
-from ..units.manage import MutableUnit
+from ..utils.list_operator import ReadOnlyList
 from ..relations.base import BaseRelation
 from ..relations.manage import MutableRelation
 from ..relations.adjacency_list import AdjacencyList
@@ -11,7 +11,7 @@ class BaseGraph(ABC):
     def __init__(self, _id : str = None ,*args, **kwargs):
         super().__init__()
         self.__id = _id
-        self._units = MutableUnit([])
+        self._units = []
         self._relations = MutableRelation([])
 
     @property

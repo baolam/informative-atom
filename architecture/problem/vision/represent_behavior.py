@@ -11,6 +11,12 @@ class SkipCoding(CodingBehavior):
     
     def forward(self, x, *args, **kwargs):
         return x
+    
+    def recognize(self, *args, **kwargs):
+        pass
+
+    def save(self, *args, **kwargs):
+        pass
 
 
 class ConvolutionBehavior(NonCodingBehavior):
@@ -87,7 +93,7 @@ class GrayScaleImage(ConvolutionBehavior):
                 [[0.299]], [[0.587]], [[0.114]]
             ]
             , *args, **kwargs)
-        
+    
 
 class DefaultBehavior(NonCodingBehavior):
     """
@@ -143,6 +149,11 @@ class DefaultBehavior(NonCodingBehavior):
         x, _ = self._default_forward(x, *args, **kwargs)
         return x[:, 0]
     
+    def recognize(self, *args, **kwargs):
+        pass
+
+    def save(self, *args, **kwargs):
+        pass
 
 class FlattenImage(NonCodingBehavior):
     def __init__(self, _id=None, img_shape : tuple = None, phi_dim : int = None, *args, **kwargs):
@@ -156,3 +167,9 @@ class FlattenImage(NonCodingBehavior):
         x = self._flatten(x)
         x = self._linear(x)
         return x
+
+    def recognize(self, *args, **kwargs):
+        pass
+
+    def save(self, *args, **kwargs):
+        pass
