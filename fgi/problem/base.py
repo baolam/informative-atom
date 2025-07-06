@@ -2,43 +2,8 @@ import os
 from abc import ABC
 from torch import nn
 from . import Problem
-from ..layer.base import StaticLayer
-from ..layer.CoPropertyLayer import CoPropertyLayer
-from inspect import getmembers
-from ..utils.save_load import save_management
-from .. import MANAGEMENT_EXT
-
-
-def filter_layer(member_value):
-    return issubclass(type(member_value), StaticLayer)
-
-def get_layer_names(cls):
-    """
-    Trả về tên khoá lưu trữ
-    """
-    filter_members = getmembers(cls, filter_layer)
-    layers = []
-
-    for name, _ in filter_members:
-        layers.append(name)
-
-    return layers
-
-
-def get_unit_id(cls, layers):
-    units = []
-    for layer_name in layers:
-        layer : StaticLayer = getattr(cls, layer_name)
-        units += list(layer.units)
-    return units
-
-def get_co_property_layer(cls, layers):
-    properties = []
-    for layer_name in layers:
-        layer : CoPropertyLayer = getattr(cls, layer_name)
-        if issubclass(type(layer), CoPropertyLayer):
-            properties += layer.properties
-    return properties
+from ..utils.save_load import save_management_ext
+from .utils import *
 
 
 class NonCodeProblem(Problem, nn.Module, ABC):
@@ -48,6 +13,7 @@ class NonCodeProblem(Problem, nn.Module, ABC):
     """
     def __init__(self, _id, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
+        self.metadata = ("call_update", False)
 
     def _update_additional_infor(self):
         """
@@ -59,13 +25,16 @@ class NonCodeProblem(Problem, nn.Module, ABC):
         # Tiến hành thêm dữ liệu vào metadata
         self.metadata = ("detail", { layer_name : getattr(self, layer_name).metadata for layer_name in self._layer_names })
         self.metadata = ("properties", get_co_property_layer(self, self._layer_names))
+        self.metadata = ("call_update", True)
 
     @property
     def layer_names(self):
+        assert self.metadata["call_update"], "Chưa gọi phương thức _update_additional_infor"
         return self._layer_names
 
     @property
     def units(self):
+        assert self.metadata["call_update"], "Chưa gọi phương thức _update_additional_infor"
         return self._unit_ids
 
     def save(self, problem_folder, *args, **kwargs):
@@ -74,10 +43,7 @@ class NonCodeProblem(Problem, nn.Module, ABC):
         Cấu trúc thư mục lưu trữ, lưu quản lí, lưu thực nội dung
         """
         # Triển khai chỉ đơn thuần là lưu quản lí
-        identifier = f"{self.id}"
-        management = f"{problem_folder}/{identifier}{MANAGEMENT_EXT}"
-
-        save_management(self.metadata, management)
+        save_management_ext(self.metadata, self.id, problem_folder)
 
 
 class CodeProblem(Problem, ABC):
@@ -86,3 +52,6 @@ class CodeProblem(Problem, ABC):
     """
     def __init__(self, _id, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
+    
+    def save(self, problem_folder, *args, **kwargs):
+        save_management_ext(self.metadata, self.id, problem_folder)
