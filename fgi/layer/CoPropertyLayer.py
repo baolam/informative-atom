@@ -8,7 +8,7 @@ class CoPropertyLayer(NonCodeForwardLayer):
     """
     Lớp tổng hợp tính chất cho mục đích khai thác
     """
-    def __init__(self, units, _id, *args, **kwargs):
+    def __init__(self, units, _id = None, *args, **kwargs):
         assert all(issubclass(type(unit), CoPropertyUnit) for unit in units)
         super().__init__(units, _id, *args, **kwargs)
     

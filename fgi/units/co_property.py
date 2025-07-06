@@ -8,7 +8,7 @@ class CoPropertyUnit(SoftUnit, ABC):
     """
     Kết hợp các tính chất cho mục đích khai thác
     """
-    def __init__(self, _id, from_units : int, phi_dim, *args, **kwargs):
+    def __init__(self, from_units : int, phi_dim, _id = None, *args, **kwargs):
         """
         from_units (phi_dim), nhận đầu vào từ bao nhiêu đơn vị
         """

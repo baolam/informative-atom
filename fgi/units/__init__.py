@@ -1,10 +1,14 @@
 from typing import Tuple, Any
 from abc import ABC, abstractmethod
 from ..utils.dict_operator import create_update, delete_key
+from ..utils.id_generator import generate_id
 
 
 class Unit(ABC):
     def __init__(self, _id : str, *args, **kwargs):
+        if _id is None:
+            _id = generate_id()
+        
         super().__init__()
         self._id = _id
         self._metadata = dict()

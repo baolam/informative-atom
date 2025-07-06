@@ -7,7 +7,7 @@ class CoRepresentUnit(SoftUnit):
     """
     Đơn vị tổng hợp biểu diễn
     """
-    def __init__(self, _id, from_units : int, phi_dim, *args, **kwargs):
+    def __init__(self, from_units : int, phi_dim, _id = None, *args, **kwargs):
         """
         from_units (int), số đơn vị nhận đầu vào làm tổng hợp
         """

@@ -7,7 +7,7 @@ class PropertyUnit(SoftUnit):
     """
     Đơn vị đại diện cho tính chất
     """
-    def __init__(self, _id, phi_dim, *args, **kwargs):
+    def __init__(self, phi_dim, _id = None, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
         self._memory = SoftMemoryUnit(_id, phi_dim)
         self._evaluation = nn.Linear(phi_dim, 1)

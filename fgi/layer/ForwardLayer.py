@@ -8,7 +8,7 @@ class NonCodeForwardLayer(StaticLayer, nn.Module):
     """
     Cài đặt lớp lan truyền
     """
-    def __init__(self, units, _id ,*args, **kwargs):
+    def __init__(self, units, _id = None, *args, **kwargs):
         assert all(issubclass(type(unit), SoftUnit) for unit in units)
         super().__init__(units, _id ,*args, **kwargs)
         self._units = nn.ModuleList(units)

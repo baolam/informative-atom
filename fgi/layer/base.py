@@ -28,5 +28,5 @@ class StaticLayer(Layer, ABC):
         raise AttributeError("Việc cố gắng thay đổi units là bị cấm")
 
     @classmethod
-    def from_units(cls, units : List[Unit], _id):
+    def from_units(cls, units : List[Unit], _id = None):
         return cls(units, _id)

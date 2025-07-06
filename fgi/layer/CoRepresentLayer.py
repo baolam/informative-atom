@@ -6,7 +6,7 @@ class CoRepresentLayer(NonCodeForwardLayer):
     """
     Lớp tổng hợp biểu diễn
     """
-    def __init__(self, units, _id, *args, **kwargs):
+    def __init__(self, units, _id = None, *args, **kwargs):
         assert all(issubclass(type(unit), CoRepresentUnit) for unit in units)
         super().__init__(units, _id, *args, **kwargs)
     
