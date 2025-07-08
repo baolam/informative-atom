@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 from .ForwardLayer import NonCodeForwardLayer
 from ..units.co_property import CoPropertyUnit
 from torch import Tensor
@@ -13,18 +13,18 @@ class CoPropertyLayer(NonCodeForwardLayer):
         super().__init__(units, _id, *args, **kwargs)
     
     def forward(self, x, *args, **kwargs):
-        temp = dict()
+        output = []
         for unit in self._units:
             y = unit(x)
-            temp[unit.metadata["property"]] = y
-        return temp
+            output.append(y)
+        return tuple(output)
 
-    def intepret(self, y : Dict[str, Tensor], *args, **kwargs) -> Dict[str, Any]:
+    def intepret(self, y : Tuple[Tensor], *args, **kwargs) -> Dict[str, Any]:
         """
         Diễn giải lại kết quả đầu ra của tổng hợp tính chất
         """
         temp = {}
-        for output, unit in zip(y.values(), self._units):
+        for output, unit in zip(y, self._units):
             temp.update(unit.intepret(output))
         return temp
     

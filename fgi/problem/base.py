@@ -19,13 +19,13 @@ class NonCodeProblem(Problem, nn.Module, ABC):
         """
         Cập nhật dữ liệu sau khi hoàn thành quá trình khởi tạo
         """
+        self.metadata = ("call_update", True)
         self._layer_names = get_layer_names(self)
         self._unit_ids = get_unit_id(self, self._layer_names)
 
         # Tiến hành thêm dữ liệu vào metadata
         self.metadata = ("detail", { layer_name : getattr(self, layer_name).metadata for layer_name in self._layer_names })
         self.metadata = ("properties", get_co_property_layer(self, self._layer_names))
-        self.metadata = ("call_update", True)
 
     @property
     def layer_names(self):

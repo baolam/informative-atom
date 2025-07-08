@@ -7,7 +7,7 @@ class CoRepresentUnit(SoftUnit):
     """
     Đơn vị tổng hợp biểu diễn
     """
-    def __init__(self, from_units : int, phi_dim, _id = None, *args, **kwargs):
+    def __init__(self, from_units : int, phi_dim, dropout : float = 0.2, _id = None, *args, **kwargs):
         """
         from_units (int), số đơn vị nhận đầu vào làm tổng hợp
         """
@@ -15,10 +15,15 @@ class CoRepresentUnit(SoftUnit):
         if from_units <= 1:
             raise ValueError("Chỉ tổng hợp từ hai đơn vị trở lên")
 
-        self._memory = SoftMemoryUnit(_id, phi_dim)
+        self._memory = SoftMemoryUnit(_id, phi_dim, dropout)
         self._weighted = nn.Parameter(randn(from_units))
         self._combine = nn.Linear(2 * phi_dim, phi_dim)
-        self._activate = nn.SiLU()
+        self._activate = nn.ReLU()
+
+        self._initalize_weights()
+
+    def _initalize_weights(self):
+        nn.init.uniform_(self._weighted)
     
     def forward(self, x ,*args, **kwargs):
         # Tổng hợp các đặc trưng lại với nhau

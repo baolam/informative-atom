@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from .base import SoftUnit
 from typing import List, Dict, Any
-from torch import nn, randn, softmax, sigmoid, Tensor, matmul
+from torch import nn, randn, softmax, sigmoid, Tensor, matmul, empty
 
 
 class CoPropertyUnit(SoftUnit, ABC):
@@ -16,7 +16,7 @@ class CoPropertyUnit(SoftUnit, ABC):
         
         # Thứ tự kết hợp các tính chất có ảnh hưởng đến kết quả
         # khai thác
-        self._position = nn.Parameter(randn(from_units, phi_dim) * 0.001)
+        self._position = nn.Parameter(empty(from_units, phi_dim))
         self._norm = nn.LayerNorm(phi_dim)
 
         # Chỉ số đánh giá
@@ -26,8 +26,14 @@ class CoPropertyUnit(SoftUnit, ABC):
         # với bài toán
         self._enhance = nn.Sequential(
             nn.Linear(phi_dim, phi_dim),
-            nn.ELU()
+            nn.ReLU()
         )
+
+        self._initalize_weight()
+
+    def _initalize_weight(self):
+        nn.init.kaiming_normal_(self._position)
+        nn.init.uniform_(self._weighted)
 
     def forward(self, x, *args, **kwargs):
         # Giai đoạn thêm mã vị trí vào tính chất
@@ -55,8 +61,8 @@ class ChooseOptions(CoPropertyUnit):
     """
     Dùng kết quả tổng hợp cho mục đích lựa chọn trong nhiều lựa chọn
     """
-    def __init__(self, _id, from_units, options : List[str], property_name : str, phi_dim, *args, **kwargs):
-        super().__init__(_id, from_units, phi_dim, *args, **kwargs)
+    def __init__(self, from_units, options : List[str], property_name : str, phi_dim, _id = None, *args, **kwargs):
+        super().__init__(from_units, phi_dim, _id, *args, **kwargs)
         self._decides = nn.Linear(phi_dim, len(options))
 
         self.metadata = ("property", property_name)
@@ -83,8 +89,8 @@ class Regression(CoPropertyUnit):
     """
     Dùng kết quả tổng hợp cho ước đoán ra một số
     """
-    def __init__(self, _id, from_units, phi_dim, property_name : str, *args, **kwargs):
-        super().__init__(_id, from_units, phi_dim, *args, **kwargs)
+    def __init__(self, from_units, phi_dim, property_name : str, _id = None, *args, **kwargs):
+        super().__init__(from_units, phi_dim, _id, *args, **kwargs)
         self._predicted = nn.Linear(phi_dim, 1)
 
         self.metadata = ("property", property_name)
@@ -103,8 +109,8 @@ class Boolean(Regression):
     """
     Dùng tổng hợp tính chất cho đưa ra quyết định đúng/sai
     """
-    def __init__(self, _id, from_units, phi_dim, property_name, threshold : float, *args, **kwargs):
-        super().__init__(_id, from_units, phi_dim, property_name, *args, **kwargs)
+    def __init__(self, from_units, phi_dim, property_name, threshold : float, _id = None, *args, **kwargs):
+        super().__init__(from_units, phi_dim, property_name, _id, *args, **kwargs)
         self.metadata = ("threshold", threshold)
     
     def forward(self, x, *args, **kwargs):

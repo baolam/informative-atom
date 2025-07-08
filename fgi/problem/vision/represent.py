@@ -9,7 +9,7 @@ Ví dụ:
 """
 from typing import Tuple
 from torch import nn, zeros, cat, tensor
-from kornia.color import rgb_to_grayscale, rgb_to_hsv
+from kornia.color import bgr_to_grayscale, bgr_to_rgb, rgb_to_hsv
 from kornia.filters import canny, in_range
 from ...units.represent import SoftRepresentUnit
 from ...utils.get_config import get_parameter_through_function
@@ -22,10 +22,11 @@ class ImageRepresent(SoftRepresentUnit):
     
     Tham khảo cài đặt PatchEmbedding ở, https://medium.com/@fernandopalominocobo/demystifying-visual-transformers-with-pytorch-understanding-patch-embeddings-part-1-3-ba380f2aa37f
     """
-    def __init__(self, _id, img_shape, patch_size : int, 
-        num_heads : int, phi_dim : int, patch_dropout : int = 0.2, *args, **kwargs):
+    def __init__(self, img_shape, patch_size : int, 
+        num_heads : int, phi_dim : int, patch_dropout : int = 0.2, _id = None, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
-        H, W, C = img_shape
+        
+        C, H, W = img_shape
         assert H % patch_size == 0 and W % patch_size == 0
 
         # Cắt bức ảnh ra thành các phần bằng nhau và tích chập
@@ -36,7 +37,7 @@ class ImageRepresent(SoftRepresentUnit):
                 kernel_size=patch_size,
                 stride=patch_size
             ),
-            nn.Flatten(dim=2)
+            nn.Flatten(2)
         )
 
         num_patches = (H // patch_size) * (W // patch_size)
@@ -51,7 +52,7 @@ class ImageRepresent(SoftRepresentUnit):
         self._norm = nn.LayerNorm(phi_dim)
     
     def _forward(self, x, *args, **kwargs):
-        cls_token = self._cls_token.expend(x.shape[0], -1, -1)
+        cls_token = self._cls_token.expand(x.shape[0], -1, -1)
 
         # Hình thành biểu diễn xong cho ảnh, lần đầu
         x = self._patch_embedding(x)
@@ -82,11 +83,11 @@ class DepthRepresent(ImageRepresent):
     """
     Đơn vị biểu diễn độ sâu ảnh, bản chất là thao tác trên ảnh xám
     """
-    def __init__(self, _id, img_shape, patch_size, num_heads, phi_dim, patch_dropout = 0.2, *args, **kwargs):
-        super().__init__(_id, img_shape, patch_size, num_heads, phi_dim, patch_dropout, *args, **kwargs)
+    def __init__(self, img_shape, patch_size, num_heads, phi_dim, patch_dropout = 0.2, _id = None, *args, **kwargs):
+        super().__init__(img_shape, patch_size, num_heads, phi_dim, patch_dropout, _id, *args, **kwargs)
     
     def forward(self, x, *args, **kwargs):
-        x = rgb_to_grayscale(x)
+        x = bgr_to_grayscale(x)
         x = super().forward(x, *args, **kwargs)
 
 
@@ -95,14 +96,14 @@ class EdgeRepresent(ImageRepresent):
     Đơn vị biểu diễn cạnh ảnh,
     Áp dụng thuật toán Canny
     """
-    def __init__(self, _id, img_shape, patch_size, num_heads, 
-            phi_dim, patch_dropout = 0.2, *args, **kwargs):
-        super().__init__(_id, img_shape, patch_size, num_heads, phi_dim, patch_dropout, *args, **kwargs)
+    def __init__(self, img_shape, patch_size, num_heads, 
+            phi_dim, patch_dropout = 0.2, _id = None, *args, **kwargs):
+        super().__init__(img_shape, patch_size, num_heads, phi_dim, patch_dropout, _id, *args, **kwargs)
 
         self.metadata = ("canny_config", get_parameter_through_function(canny))
     
     def noncode_forward(self, x, *args, **kwargs):
-        x = rgb_to_grayscale(x)
+        x = bgr_to_grayscale(x)
         x, edges = canny(x, **self.metadata["canny_config"])
         return x, edges
 
@@ -117,9 +118,9 @@ class ColorFilter(ImageRepresent):
     Đơn vị biểu diễn phản xạ theo một nhóm màu nhất định.
     Cài đặt bộ lọc màu.
     """
-    def __init__(self, _id, img_shape, patch_size, num_heads, 
-        phi_dim, lower_hsv : Tuple[float, float, float], upper_hsv : Tuple[float, float, float], patch_dropout = 0.2, *args, **kwargs):
-        super().__init__(_id, img_shape, patch_size, num_heads, phi_dim, patch_dropout, *args, **kwargs)
+    def __init__(self, img_shape, patch_size, num_heads, 
+        phi_dim, lower_hsv : Tuple[float, float, float], upper_hsv : Tuple[float, float, float], patch_dropout = 0.2, _id = None, *args, **kwargs):
+        super().__init__(img_shape, patch_size, num_heads, phi_dim, patch_dropout, _id, *args, **kwargs)
 
         check_input_hsv(lower_hsv)
         check_input_hsv(upper_hsv)
@@ -136,6 +137,7 @@ class ColorFilter(ImageRepresent):
         self.register_buffer("_upper", tensor(normalize_hsv(upper_hsv)).expand(1, 1, -1))
 
     def noncode_forward(self, x, *args, **kwargs):
+        x = bgr_to_rgb(x)
         x = rgb_to_hsv(x)
         x = in_range(x, self._lower, self._upper)
         return x

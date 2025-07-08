@@ -54,18 +54,18 @@ class Learner(ABC):
         assert not self.__block_mode, "Chức năng bị khoá"
         self._loss_infor[_property] = loss_fn
 
-    def compile(self, optimizer, device, *args, **kwargs):
+    def compile(self, optimizer_cls, device, *args, **kwargs):
         """
         aggerate_loss là cách thức tổng hợp lỗi các thành phần
         """
-        # Điền các hình thức cần thiết cho tối ưu
-        self._optimizer : Optimizer = optimizer
-        self._device = device
-
         # Sau khi tiến hành cập nhật thì tiến hành khoá thay đổi, 
         # định danh các đơn vị, bộ số học
         self.__block_mode = True
         self._update_learnable_state()
+
+        # Điền các hình thức cần thiết cho tối ưu
+        self._optimizer : Optimizer = optimizer_cls(self._problem.parameters(), *args, **kwargs)
+        self._device = device
 
     @abstractmethod
     def _aggerate_loss(self, y_hat, y, *args, **kwargs) -> Dict[str, Tensor]:
@@ -76,7 +76,7 @@ class Learner(ABC):
 
     def _update_learnable_state(self):
         # Đảm bảo có ít nhất một đơn vị cần học
-        assert any(not code for code in self._learnable.values()), "Phải có ít nhất 1 đơn vị cần đào tạo!"
+        assert any(code for code in self._learnable.values()), "Phải có ít nhất 1 đơn vị cần đào tạo!"
 
         # Tiến hành truy cập qua các Unit trong các Layer, đối chiếu False mà cho
         # ngăn và chặn lan truyền

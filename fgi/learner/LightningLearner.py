@@ -20,13 +20,15 @@ class LightningLearner(Learner, LightningModule, ABC):
     def training_step(self, batch, batch_idx, *args, **kwargs):
         x, y = batch
         y_hat = self(x)
-        loss = self._aggerate_loss(y_hat, y)
-        self.log_dict(loss, *args, **kwargs)
-        return loss["total"]
+        overall = self._aggerate_loss(y_hat, y)
+        self.log_dict(overall, *args, **kwargs)
+        self.log("train_loss", overall["total_loss"], on_step=True, on_epoch=True, prog_bar=True)
+        return overall["total_loss"]
     
     def validation_step(self, batch, batch_idx ,*args, **kwargs):
         x, y = batch
         y_hat = self(x)
-        loss = self._aggerate_loss(y_hat, y)
-        self.log_dict(loss, *args, **kwargs)
-        return loss["total"]
+        overall = self._aggerate_loss(y_hat, y)
+        self.log_dict(overall, *args, **kwargs)
+        self.log("val_loss", overall["total_loss"], on_step=True, on_epoch=True, prog_bar=True)
+        return overall["total_loss"]

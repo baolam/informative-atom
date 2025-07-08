@@ -5,6 +5,7 @@ import pickle
 import json
 import inspect
 import lightning
+import torchvision
 
 # Định dạng lưu trữ
 MANAGEMENT_EXT = ".json"
