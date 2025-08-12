@@ -6,6 +6,7 @@ import json
 import inspect
 import lightning
 import torchvision
+import faiss
 
 # Định dạng lưu trữ
 MANAGEMENT_EXT = ".json"

@@ -46,7 +46,7 @@ class Unit(ABC):
 
 from .base import SoftUnit, HardUnit
 from .represent import SoftRepresentUnit, HardRepresentUnit
-from .co_represent import CoRepresentUnit
+from .co_represent import CoRepresentUnit, EnhanceRepresentUnit
 from .property import PropertyUnit
 from .co_property import CoPropertyUnit, ChooseOptions, Regression, Boolean
 
@@ -54,6 +54,7 @@ __all__ = [
     "SoftUnit",
     "HardUnit",
     "CoRepresentUnit",
+    "EnhanceRepresentUnit",
     "PropertyUnit",
     "CoPropertyUnit",
     "ChooseOptions",

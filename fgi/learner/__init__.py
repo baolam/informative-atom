@@ -5,9 +5,10 @@ from ..units.base import SoftUnit
 from ..problem.base import NonCodeProblem
 from torch.optim import Optimizer
 from torch import Tensor
+from ..utils.after_init import AutoAfterInitMeta
 
 
-class Learner(ABC):
+class Learner(ABC, metaclass=AutoAfterInitMeta):
     """
     Triển khai bộ học cho vấn đề. Cấp độ thao tác là vấn đề
     """
@@ -29,6 +30,13 @@ class Learner(ABC):
 
         # Bảng cập nhật metric
         self._metric_infor = { _property : lambda x : x for _property in problem.metadata["properties"] }
+
+    def after_init(self, *args, **kwargs):
+        """
+        Cấu hình mặc định là tất cả đơn vị tham gia đều học
+        """
+        for _id in self.learnable.keys():
+            self.learnable = (_id, True)
 
     @property
     def learnable(self):
@@ -54,9 +62,9 @@ class Learner(ABC):
         assert not self.__block_mode, "Chức năng bị khoá"
         self._loss_infor[_property] = loss_fn
 
-    def compile(self, optimizer_cls, device, *args, **kwargs):
+    def compile(self, *args, **kwargs):
         """
-        aggerate_loss là cách thức tổng hợp lỗi các thành phần
+        biên dịch, khoá chức năng là cách thức tổng hợp lỗi các thành phần
         """
         # Sau khi tiến hành cập nhật thì tiến hành khoá thay đổi, 
         # định danh các đơn vị, bộ số học
@@ -64,8 +72,8 @@ class Learner(ABC):
         self._update_learnable_state()
 
         # Điền các hình thức cần thiết cho tối ưu
-        self._optimizer : Optimizer = optimizer_cls(self._problem.parameters(), *args, **kwargs)
-        self._device = device
+        # self._optimizer : Optimizer = optimizer_cls(self._problem.parameters(), *args, **kwargs)
+        # self._device = device
 
     @abstractmethod
     def _aggerate_loss(self, y_hat, y, *args, **kwargs) -> Dict[str, Tensor]:

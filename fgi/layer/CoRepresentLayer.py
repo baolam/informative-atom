@@ -12,5 +12,4 @@ class CoRepresentLayer(NonCodeForwardLayer):
     
     def forward(self, x, *args, **kwargs):
         x = super().forward(x, *args, **kwargs)
-        x = x.mean(dim = 1)
         return x

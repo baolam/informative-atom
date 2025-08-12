@@ -9,7 +9,7 @@ def save_management(metadata, filename):
 
 def save_contentai(entity : nn.Module, filename):
     assert issubclass(type(entity), nn.Module)
-    with open(filename, "w") as f:
+    with open(filename, "wb") as f:
         content_dump(entity.state_dict(), f)
 
 def save_management_ext(metadata, _id, folder_name):

@@ -1,13 +1,17 @@
 from abc import ABC, abstractmethod
 from ..units import Unit
+from .exploit import Exploiter
+from ..utils.after_init import AfterInitMixin, AutoAfterInitMeta
 
 
-class Problem(Unit, ABC):
+class Problem(Unit, AfterInitMixin, ABC, metaclass=AutoAfterInitMeta):
     """
     Bộ dựng của một Problem(Vấn đề)
     """
-    def __init__(self, _id, *args, **kwargs):
+    def __init__(self, _id, exploiter : Exploiter = None,*args, **kwargs):
         super().__init__(_id, *args, **kwargs)
+        self._exploiter = exploiter
+        self.metadata = ("default_exploiter", exploiter.__name__ if (not (exploiter is None)) else None)
     
     @abstractmethod
     def recognize_unknown(self, *args, **kwargs):
@@ -19,14 +23,21 @@ class Problem(Unit, ABC):
         pass
 
     @property
-    @abstractmethod
     def _as_object(self, *args, **kwargs):
         """
         Trả về một bản dựng của vấn đề (hình thức cài đặt hướng
         đối tượng).
         Dấu _ ám thị cho việc đây là phương thức cài đặt ở các lớp kế thừa
         """
-        pass
+        return self._exploiter
+    
+    @_as_object.setter
+    def _as_object(self, new_exploiter : Exploiter, *args, **kwargs):
+        # Nên dựng một lớp khai thác ở đây, dùng cho trường 
+        if not issubclass(new_exploiter, Exploiter):
+            raise AttributeError("Template khai thác phải kế thừa từ Exploiter")
+        self._exploiter = new_exploiter
+        self.metadata = ("default_exploiter", new_exploiter.__name__ if (not (new_exploiter is None)) else None)
 
     @abstractmethod
     def as_instance(self, *args, **kwargs):
@@ -57,5 +68,6 @@ __all__ = [
     "ImageRepresent",
     "DepthRepresent",
     "ColorFilter",
-    "EdgeRepresent"
+    "EdgeRepresent",
+    "Exploiter"
 ]

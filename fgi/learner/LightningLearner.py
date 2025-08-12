@@ -11,6 +11,9 @@ class LightningLearner(Learner, LightningModule, ABC):
     def __init__(self, problem, *args, **kwargs):
         super().__init__(problem, *args, **kwargs)
 
+    def after_init(self, *args, **kwargs):
+        super().after_init(*args, **kwargs)
+
     def forward(self, x, *args, **kwargs):
         return self._problem.forward(x, *args, **kwargs)
     

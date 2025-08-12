@@ -1,8 +1,7 @@
 from abc import ABC
 from typing import List
 from ..units import Unit
-from .. import MANAGEMENT_EXT
-from ..utils.save_load import save_management
+from ..utils.save_load import save_management_ext
 
 class Layer(Unit, ABC):
     """
@@ -52,11 +51,7 @@ class Layer(Unit, ABC):
         self._del_unit(unit)
 
     def save(self, layer_folder ,*args, **kwargs):
-        # Triển khai chỉ đơn thuần là lưu quản lí
-        identifier = f"{self.id}"
-        management = f"{layer_folder}/{identifier}{MANAGEMENT_EXT}"
-
-        save_management(self.metadata, management)
+        save_management_ext(self.metadata, self.id, layer_folder)
 
 
 from .base import StaticLayer

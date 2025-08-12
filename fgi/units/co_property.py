@@ -13,39 +13,42 @@ class CoPropertyUnit(SoftUnit, ABC):
         from_units (phi_dim), nhận đầu vào từ bao nhiêu đơn vị
         """
         super().__init__(_id, *args, **kwargs)
+        if from_units > 1:
+            # Thứ tự kết hợp các tính chất có ảnh hưởng đến kết quả
+            # khai thác
+            self._position = nn.Parameter(empty(from_units, phi_dim))
+
+            # Chỉ số đánh giá
+            self._weighted = nn.Parameter(randn(from_units))
+
+            # Tinh chỉnh lại kết quả tổng hợp cho phù hợp
+            # với bài toán
+            self._enhance = nn.Sequential(
+                nn.Linear(phi_dim, phi_dim),
+                nn.ReLU()
+            )
+
+            self._initalize_weight()
         
-        # Thứ tự kết hợp các tính chất có ảnh hưởng đến kết quả
-        # khai thác
-        self._position = nn.Parameter(empty(from_units, phi_dim))
-        self._norm = nn.LayerNorm(phi_dim)
-
-        # Chỉ số đánh giá
-        self._weighted = nn.Parameter(randn(from_units))
-
-        # Tinh chỉnh lại kết quả tổng hợp cho phù hợp
-        # với bài toán
-        self._enhance = nn.Sequential(
-            nn.Linear(phi_dim, phi_dim),
-            nn.ReLU()
-        )
-
-        self._initalize_weight()
+        self.metadata = ("one_unit?", from_units == 1)
 
     def _initalize_weight(self):
         nn.init.kaiming_normal_(self._position)
         nn.init.uniform_(self._weighted)
 
     def forward(self, x, *args, **kwargs):
-        # Giai đoạn thêm mã vị trí vào tính chất
-        x = x + self._position
-        x = self._norm(x)
+        if not self.metadata["one_unit?"]:
+            # Giai đoạn thêm mã vị trí vào tính chất
+            x = x + self._position
+            x = nn.functional.leaky_relu(x)
 
-        # Giai đoạn tổng hợp kết quả
-        weighted = softmax(self._weighted, dim = 0)
-        x = matmul(weighted, x)
+            # Giai đoạn tổng hợp kết quả
+            weighted = softmax(self._weighted, dim = 0)
+            x = matmul(weighted, x)
 
-        # Giai đoạn tăng cường biểu diễn
-        x = self._enhance(x)
+            # Giai đoạn tăng cường biểu diễn
+            x = self._enhance(x)
+
         return x
     
     @abstractmethod
@@ -62,16 +65,17 @@ class ChooseOptions(CoPropertyUnit):
     Dùng kết quả tổng hợp cho mục đích lựa chọn trong nhiều lựa chọn
     """
     def __init__(self, from_units, options : List[str], property_name : str, phi_dim, _id = None, *args, **kwargs):
-        super().__init__(from_units, phi_dim, _id, *args, **kwargs)
+        super().__init__(from_units, phi_dim = phi_dim, _id = _id, *args, **kwargs)
         self._decides = nn.Linear(phi_dim, len(options))
 
         self.metadata = ("property", property_name)
         self.metadata = ("options", options.copy())
     
-    def forward(self, x, *args, **kwargs):
+    def forward(self, x, skip_activate : bool = True, *args, **kwargs):
         x = super().forward(x, *args, **kwargs)
         x = self._decides(x)
-        x = softmax(x, dim = 1)
+        if not skip_activate:
+            x = softmax(x, dim = 1)
         return x
     
     def intepret(self, y : Tensor ,*args, **kwargs):
@@ -90,7 +94,7 @@ class Regression(CoPropertyUnit):
     Dùng kết quả tổng hợp cho ước đoán ra một số
     """
     def __init__(self, from_units, phi_dim, property_name : str, _id = None, *args, **kwargs):
-        super().__init__(from_units, phi_dim, _id, *args, **kwargs)
+        super().__init__(from_units, phi_dim = phi_dim, _id = _id, *args, **kwargs)
         self._predicted = nn.Linear(phi_dim, 1)
 
         self.metadata = ("property", property_name)
@@ -110,12 +114,13 @@ class Boolean(Regression):
     Dùng tổng hợp tính chất cho đưa ra quyết định đúng/sai
     """
     def __init__(self, from_units, phi_dim, property_name, threshold : float, _id = None, *args, **kwargs):
-        super().__init__(from_units, phi_dim, property_name, _id, *args, **kwargs)
+        super().__init__(from_units, phi_dim = phi_dim, property_name = property_name, _id = _id, *args, **kwargs)
         self.metadata = ("threshold", threshold)
     
-    def forward(self, x, *args, **kwargs):
+    def forward(self, x, skip_activate : bool = True, *args, **kwargs):
         x = super().forward(x, *args, **kwargs)
-        x = sigmoid(x)
+        if not skip_activate:
+            x = sigmoid(x)
         return x
     
     def intepret(self, y, *args, **kwargs):

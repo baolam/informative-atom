@@ -45,11 +45,11 @@ class ImageRepresent(SoftRepresentUnit):
         # Một số thành phần cấu tạo của lớp đầu vào
         self._cls_token = nn.Parameter(zeros(1, 1, phi_dim))
         self._pos_embed = nn.Parameter(zeros(1, num_patches + 1, phi_dim))
-        self._dropout = nn.Dropout(patch_dropout)
+        # self._dropout = nn.Dropout(patch_dropout)
 
         # Hoạt động tăng cường và phối hợp
         self._attn = nn.MultiheadAttention(phi_dim, num_heads, batch_first=True)
-        self._norm = nn.LayerNorm(phi_dim)
+        # self._norm = nn.LayerNorm(phi_dim)
     
     def _forward(self, x, *args, **kwargs):
         cls_token = self._cls_token.expand(x.shape[0], -1, -1)
@@ -60,13 +60,13 @@ class ImageRepresent(SoftRepresentUnit):
         x = cat([cls_token, x], dim=1)
 
         x = self._pos_embed + x
-        x = self._dropout(x)
+        # x = self._dropout(x)
 
         # Tiến hành dùng Attention Mechanism để tổng
         # hợp lại kết quả
         # x (B, num_patches, phi_dim)
         x, attn_weights = self._attn(x, x, x)
-        x = self._norm(x)
+        # x = self._norm(x)
 
         return x, attn_weights
     
@@ -103,7 +103,6 @@ class EdgeRepresent(ImageRepresent):
         self.metadata = ("canny_config", get_parameter_through_function(canny))
     
     def noncode_forward(self, x, *args, **kwargs):
-        x = bgr_to_grayscale(x)
         x, edges = canny(x, **self.metadata["canny_config"])
         return x, edges
 

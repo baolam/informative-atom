@@ -14,8 +14,12 @@ class SoftUnit(Unit, nn.Module, ABC):
     def forward(self, *args, **kwargs):
         raise NotImplementedError("Phương thức forward phải được cài đặt!")
 
-    def save(self, folder_path : str, *args, **kwargs):
-        save_management_ext(self.metadata, self.id, folder_path)
+    def save(self, folder_path : str, save_management : bool = True, *args, **kwargs):
+        """
+        Lưu trữ dữ liệu gồm dữ liệu quản lí, dữ liệu nội dung.
+        """
+        if save_management:
+            save_management_ext(self.metadata, self.id, folder_path)
         save_contentai_ext(self, self.id, folder_path)
 
 
