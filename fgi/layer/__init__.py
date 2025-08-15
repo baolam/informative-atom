@@ -5,14 +5,14 @@ from ..utils.save_load import save_management_ext
 
 class Layer(Unit, ABC):
     """
-    Lớp, (khái niệm triển khai phối hợp nhóm các đơn vị cùng hoạt động với nhau)
+    Layer, (khái niệm triển khai phối hợp nhóm các đơn vị cùng hoạt động với nhau).
+
+    Đây là lớp hành vi cơ sở của một Layer. Chứa các nhóm phương thức liên quan đến
+    quản lí units như thêm, sửa, xoá và hành vi lưu trữ, tải nội dung.
     """
     def __init__(self, _id, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
         self._units : List[Unit] = [] 
-
-        # Loại hình
-        self.metadata = ("type", self.__class__.__name__)
 
     @property
     def units(self) -> tuple[str]:
@@ -28,7 +28,7 @@ class Layer(Unit, ABC):
         Thêm vào một đơn vị mới.
         Phải kiểm tra đơn vị đó chưa tồn tại
         """
-        assert issubclass(type(unit), Unit), "Đơn vị không phải là đơn vị"
+        assert issubclass(type(unit), Unit), "Không phải là đơn vị"
         assert unit.id not in self.units, "Đơn vị đã tồn tại"
         self._units.append(unit)
 

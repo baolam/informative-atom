@@ -11,8 +11,8 @@ class SoftUnit(Unit, nn.Module, ABC):
     def __init__(self, _id, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
     
-    def forward(self, *args, **kwargs):
-        raise NotImplementedError("Phương thức forward phải được cài đặt!")
+    # def forward(self, *args, **kwargs):
+    #     raise NotImplementedError("Phương thức forward phải được cài đặt!")
 
     def save(self, folder_path : str, save_management : bool = True, *args, **kwargs):
         """
@@ -30,11 +30,11 @@ class HardUnit(Unit, ABC):
     def __init__(self, _id, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
     
-    def forward(self, *args, **kwargs):
-        """
-        Cài đặt hành vi thuật toán cho đơn vị
-        """
-        raise NotImplementedError("Phương thức forward phải được cài đặt!")
+    # def forward(self, *args, **kwargs):
+    #     """
+    #     Cài đặt hành vi thuật toán cho đơn vị
+    #     """
+    #     raise NotImplementedError("Phương thức forward phải được cài đặt!")
     
     def save(self, folder_path, *args, **kwargs):
         save_management_ext(self.metadata, self.id, folder_path)
