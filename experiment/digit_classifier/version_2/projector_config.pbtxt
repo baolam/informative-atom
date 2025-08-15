@@ -1,0 +1,20 @@
+embeddings {
+  tensor_name: "train/embedding:42000"
+  metadata_path: "42000/train%2fembedding\\metadata.tsv"
+  sprite {
+    image_path: "42000/train%2fembedding\\sprite.png"
+    single_image_dim: 28
+    single_image_dim: 28
+  }
+  tensor_path: "42000/train%2fembedding\\tensors.tsv"
+}
+embeddings {
+  tensor_name: "test/embedding:42000"
+  metadata_path: "42000/test%2fembedding\\metadata.tsv"
+  sprite {
+    image_path: "42000/test%2fembedding\\sprite.png"
+    single_image_dim: 28
+    single_image_dim: 28
+  }
+  tensor_path: "42000/test%2fembedding\\tensors.tsv"
+}

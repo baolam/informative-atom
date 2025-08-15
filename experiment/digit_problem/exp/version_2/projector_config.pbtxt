@@ -1,0 +1,10 @@
+embeddings {
+  tensor_name: "final_embedding:37500"
+  metadata_path: "37500/final_embedding\\metadata.tsv"
+  sprite {
+    image_path: "37500/final_embedding\\sprite.png"
+    single_image_dim: 28
+    single_image_dim: 28
+  }
+  tensor_path: "37500/final_embedding\\tensors.tsv"
+}
