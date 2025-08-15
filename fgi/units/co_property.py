@@ -1,3 +1,12 @@
+"""
+    Một số hành vi khai thác đơn vị Unit.
+
+    Các lớp khai thác ở dưới ở dưới dựa trên ý tưởng về kiểu dữ liệu nguyên thuỷ.
+    + Số (Float, cài đặt là Regression)
+    + Lựa chọn (Mảng, Options)
+    + Quyết định (Đúng sai, cài đặt là Boolean)
+"""
+
 from abc import ABC, abstractmethod
 from .base import SoftUnit
 from typing import List, Dict, Any
