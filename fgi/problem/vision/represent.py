@@ -10,7 +10,7 @@ Ví dụ:
 from typing import Tuple
 from torch import nn, zeros, cat, tensor
 from kornia.color import bgr_to_grayscale, bgr_to_rgb, rgb_to_hsv
-from kornia.filters import canny, in_range
+from kornia.filters import Canny, InRange
 from ...units.represent import SoftRepresentUnit
 from ...utils.get_config import get_parameter_through_function
 from .utils import normalize_hsv, check_input_hsv
@@ -23,7 +23,7 @@ class ImageRepresent(SoftRepresentUnit):
     Tham khảo cài đặt PatchEmbedding ở, https://medium.com/@fernandopalominocobo/demystifying-visual-transformers-with-pytorch-understanding-patch-embeddings-part-1-3-ba380f2aa37f
     """
     def __init__(self, img_shape, patch_size : int, 
-        num_heads : int, phi_dim : int, patch_dropout : int = 0.2, _id = None, *args, **kwargs):
+        num_heads : int, phi_dim : int, _id = None, *args, **kwargs):
         super().__init__(_id, *args, **kwargs)
         
         C, H, W = img_shape
@@ -83,8 +83,8 @@ class DepthRepresent(ImageRepresent):
     """
     Đơn vị biểu diễn độ sâu ảnh, bản chất là thao tác trên ảnh xám
     """
-    def __init__(self, img_shape, patch_size, num_heads, phi_dim, patch_dropout = 0.2, _id = None, *args, **kwargs):
-        super().__init__(img_shape, patch_size, num_heads, phi_dim, patch_dropout, _id, *args, **kwargs)
+    def __init__(self, img_shape, patch_size, num_heads, phi_dim, _id = None, *args, **kwargs):
+        super().__init__(img_shape, patch_size, num_heads, phi_dim, _id, *args, **kwargs)
     
     def forward(self, x, *args, **kwargs):
         x = bgr_to_grayscale(x)
@@ -97,13 +97,15 @@ class EdgeRepresent(ImageRepresent):
     Áp dụng thuật toán Canny
     """
     def __init__(self, img_shape, patch_size, num_heads, 
-            phi_dim, patch_dropout = 0.2, _id = None, *args, **kwargs):
-        super().__init__(img_shape, patch_size, num_heads, phi_dim, patch_dropout, _id, *args, **kwargs)
+            phi_dim, _id = None, *args, **kwargs):
+        _, H, W = img_shape
+        super().__init__((1, H, W), patch_size, num_heads, phi_dim, _id, *args, **kwargs)
 
-        self.metadata = ("canny_config", get_parameter_through_function(canny))
-    
+        self.metadata = ("canny_config", get_parameter_through_function(Canny))
+        self._canny = Canny(**self.metadata["canny_config"])
+
     def noncode_forward(self, x, *args, **kwargs):
-        x, edges = canny(x, **self.metadata["canny_config"])
+        x, edges = self._canny(x)
         return x, edges
 
     def forward(self, x, *args, **kwargs):
@@ -135,10 +137,12 @@ class ColorFilter(ImageRepresent):
         self.register_buffer("_lower", tensor(normalize_hsv(lower_hsv)).expand(1, 1, -1))
         self.register_buffer("_upper", tensor(normalize_hsv(upper_hsv)).expand(1, 1, -1))
 
+        self._in_range = InRange(self._lower, self._upper)
+
     def noncode_forward(self, x, *args, **kwargs):
         x = bgr_to_rgb(x)
         x = rgb_to_hsv(x)
-        x = in_range(x, self._lower, self._upper)
+        x = self._in_range(x)
         return x
 
     def forward(self, x, *args, **kwargs):

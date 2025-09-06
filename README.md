@@ -43,3 +43,10 @@ Thử khảo sát ý tưởng về hạt thông tin qua một số:
 - Tương tác hạt là cách định nghĩa luồng thông tin lan truyền qua các hạt như thế nào và vai trò vị trí của hạt trong vấn đề đó.
 
 - Hiện tại các đơn vị tương tác với nhau khá là rời rạc, khi triển khai cho bài toán cụ thể, ta phải nhóm các đơn vị tương đồng với nhau thành một khối liền mạch.
+
+
+##### Cấu trúc thư mục
+docs --> chứa các ảnh minh hoạ kiến trúc cài đặt
+experiment --> chứa kết quả thực nghiệm
+fgi --> chứa mã nguồn chính của nghiên cứu
+notebooks --> chứa chương trình chạy mã thực nghiệm
